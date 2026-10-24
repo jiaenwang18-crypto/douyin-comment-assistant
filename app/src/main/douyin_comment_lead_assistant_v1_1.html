@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#17152b">
+<title>抖音评论获客助手</title>
+<style>
+:root{--bg:#f5f6fb;--card:#fff;--ink:#1c2030;--muted:#747b8e;--line:#e7e9f1;--purple:#6655e8;--purple2:#eeeaff;--green:#16865c;--red:#c33b4b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Noto Sans SC",sans-serif}
+header{background:linear-gradient(135deg,#19172f,#40327d);color:white;padding:22px 18px 24px;border-radius:0 0 24px 24px}
+header .tag{font-size:12px;opacity:.8}h1{font-size:23px;margin:7px 0 5px}header p{margin:0;font-size:13px;opacity:.85;line-height:1.5}
+main{max-width:760px;margin:auto;padding:14px 14px 90px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:-8px}
+.stat,.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 4px 16px #20264a08}
+.stat b{display:block;font-size:22px}.stat span{font-size:12px;color:var(--muted)}
+.tabs{display:flex;gap:7px;overflow:auto;padding:16px 0 12px}.tab{border:1px solid var(--line);background:white;border-radius:20px;padding:9px 13px;white-space:nowrap;color:#52596d;font-size:13px}.tab.active{background:var(--purple);color:white;border-color:var(--purple)}
+.panel{display:none}.panel.active{display:block}.card{margin-bottom:12px}.card h2{font-size:16px;margin:0 0 12px}.hint{font-size:12px;color:var(--muted);line-height:1.55}
+label{display:block;font-size:13px;font-weight:600;margin:11px 0 6px}input,textarea,select{width:100%;padding:11px 12px;border:1px solid #dfe2ed;border-radius:10px;background:#fff;font:inherit;font-size:14px;color:var(--ink)}textarea{min-height:78px;resize:vertical}
+.row{display:flex;gap:8px}.row>*{flex:1;min-width:0}.btn{border:0;border-radius:10px;padding:11px 13px;background:var(--purple);color:white;font-weight:650;font-size:13px;cursor:pointer}.btn.secondary{background:var(--purple2);color:#5141c8}.btn.ghost{background:#f1f2f7;color:#4c5367}.btn.danger{background:#fff0f1;color:var(--red)}.btn.small{padding:7px 9px;font-size:12px}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.item{border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:9px;background:#fff}.item-title{font-weight:700;font-size:14px;overflow-wrap:anywhere}.meta{font-size:12px;color:var(--muted);margin-top:5px;overflow-wrap:anywhere}.comment{padding:11px;border:1px solid var(--line);border-radius:10px;margin-top:8px;font-size:14px;line-height:1.6;background:#fcfcff}.comment textarea{min-height:65px}.badge{display:inline-block;border-radius:6px;background:#f0efff;color:#5d4dd0;font-size:11px;padding:3px 6px;margin-right:5px}.empty{padding:18px;text-align:center;color:var(--muted);font-size:13px}.foot{position:fixed;bottom:0;left:0;right:0;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:#ffffffed;border-top:1px solid var(--line);text-align:center;font-size:11px;color:var(--muted);backdrop-filter:blur(12px)}
+.notice{background:#fff8e6;border:1px solid #f3dfaa;border-radius:12px;padding:11px;font-size:12px;line-height:1.6;color:#74561b;margin-bottom:12px}
+@media(min-width:620px){main{padding-top:18px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.grid2 .card{margin-bottom:0}}
+</style>
+</head>
+<body>
+<header><div class="tag">手机网页工具 · 本地保存</div><h1>抖音评论获客助手</h1><p>整理目标视频 · 生成评论草稿 · 人工审核发布<br>当前版本无需登录，不会自动发布评论。</p></header>
+<main>
+<div class="stats">
+ <div class="stat"><b id="statVideos">0</b><span>已收集视频</span></div>
+ <div class="stat"><b id="statComments">0</b><span>评论草稿</span></div>
+ <div class="stat"><b id="statLeads">0</b><span>客户线索</span></div>
+</div>
+<div class="tabs">
+ <button class="tab active" data-tab="keywords">关键词</button>
+ <button class="tab" data-tab="videos">视频管理</button>
+ <button class="tab" data-tab="comments">生成评论</button>
+ <button class="tab" data-tab="leads">客户线索</button>
+ <button class="tab" data-tab="backup">备份/说明</button>
+</div>
+
+<section id="keywords" class="panel active">
+ <div class="notice">说明：此版本不会直接抓取抖音搜索结果。你可以先维护关键词，再在抖音内搜索，找到相关视频后把链接添加到「视频管理」。</div>
+ <div class="card">
+  <h2>添加搜索关键词</h2>
+  <label for="kwInput">关键词</label><input id="kwInput" placeholder="例如：徐州装修、徐州开店、创业经验">
+  <label for="kwCategory">分类</label><select id="kwCategory"><option>本地商家</option><option>装修家居</option><option>创业经营</option><option>生活服务</option><option>其他</option></select>
+  <div class="actions"><button class="btn" id="addKw">保存关键词</button><button class="btn secondary" id="copyKw">复制全部关键词</button></div>
+ </div>
+ <div class="card"><h2>我的关键词</h2><div id="keywordList" class="empty">还没有关键词</div></div>
+</section>
+
+<section id="videos" class="panel">
+ <div class="card">
+  <h2>添加目标视频</h2>
+  <label for="videoTitle">视频标题 / 主题</label><input id="videoTitle" placeholder="尽量描述视频讲了什么">
+  <label for="videoUrl">抖音视频链接</label><input id="videoUrl" placeholder="粘贴分享链接（可稍后补充）" inputmode="url">
+  <label for="videoAuthor">作者（选填）</label><input id="videoAuthor" placeholder="作者昵称">
+  <label for="videoNotes">视频内容摘要（建议填写）</label><textarea id="videoNotes" placeholder="例如：店主分享新店开业，正在征集本地顾客建议"></textarea>
+  <label for="videoKeyword">关联关键词</label><select id="videoKeyword"><option value="">暂不关联</option></select>
+  <div class="actions"><button class="btn" id="addVideo">保存视频</button><button class="btn secondary" id="openDouyin">打开抖音</button></div>
+  <p class="hint">提示：填写标题和摘要能帮助生成更贴合内容的评论。打开抖音后请自行搜索和判断相关性。</p>
+ </div>
+ <div class="card"><h2>已收集视频</h2><div id="videoList" class="empty">还没有视频</div></div>
+</section>
+
+<section id="comments" class="panel">
+ <div class="card">
+  <h2>生成评论草稿</h2>
+  <label for="chooseVideo">选择视频</label><select id="chooseVideo"><option value="">先添加视频</option></select>
+  <label for="commentStyle">评论风格</label><select id="commentStyle"><option value="friendly">自然友好</option><option value="question">真诚提问</option><option value="professional">专业交流</option><option value="local">本地交流</option></select>
+  <label for="extraContext">补充方向（选填）</label><input id="extraContext" placeholder="例如：想了解预算、流程、开店经验">
+  <div class="actions"><button class="btn" id="generateComments">本地生成 5 条</button><button class="btn secondary" id="makeAIPrompt">生成 AI 提示词</button></div>
+  <div class="notice" style="margin-top:12px"><b>AI 使用方式：</b>点击“生成 AI 提示词”，复制后发给 ChatGPT 等 AI，再把生成的评论逐条粘贴保存。当前离线网页不会自动连接 ChatGPT，也不会自动发布评论。</div>
+  <label for="aiPromptOutput">可复制的 AI 提示词</label><textarea id="aiPromptOutput" placeholder="选择视频后，点击“生成 AI 提示词”……" style="min-height:150px"></textarea>
+  <div class="actions"><button class="btn ghost" id="copyAIPrompt">复制 AI 提示词</button></div>
+  <p class="hint">建议让 AI 生成真实、有内容、与视频相关的交流评论；不要批量刷屏、伪装客户或发布虚假体验。生成后请人工核对。</p>
+ </div>
+ <div class="card"><h2>评论草稿</h2><div id="commentList" class="empty">选择一个视频并生成评论</div></div>
+</section>
+
+<section id="leads" class="panel">
+ <div class="card">
+  <h2>记录潜在客户</h2>
+  <label for="leadName">客户 / 账号名称</label><input id="leadName" placeholder="昵称或商家名称">
+  <label for="leadSource">来源视频</label><select id="leadSource"><option value="">不关联视频</option></select>
+  <label for="leadStatus">跟进状态</label><select id="leadStatus"><option>待联系</option><option>已联系</option><option>有意向</option><option>已成交</option><option>暂不跟进</option></select>
+  <label for="leadNotes">备注</label><textarea id="leadNotes" placeholder="需求、联系方式（请合法合规保存）、下次跟进事项"></textarea>
+  <div class="actions"><button class="btn" id="addLead">保存线索</button></div>
+ </div>
+ <div class="card"><h2>客户线索列表</h2><div id="leadList" class="empty">还没有客户线索</div></div>
+</section>
+
+<section id="backup" class="panel">
+ <div class="card">
+  <h2>数据备份</h2><p class="hint">数据保存在当前浏览器的本地存储中。清除浏览器数据、更换手机或浏览器可能导致数据丢失，请定期导出备份。</p>
+  <div class="actions"><button class="btn" id="exportData">导出备份 JSON</button><button class="btn secondary" id="exportCsv">导出视频 CSV</button></div>
+  <label for="importFile">导入 JSON 备份</label><input id="importFile" type="file" accept=".json,application/json">
+  <div class="actions"><button class="btn danger" id="clearData">清空本机全部数据</button></div>
+ </div>
+ <div class="card"><h2>版本说明</h2><p class="hint">这是离线网页原型 v1.1：关键词、视频、评论草稿和客户线索均可在本机管理。可生成 AI 提示词并复制到 ChatGPT 等 AI 使用；本地评论模板无需联网。关键词搜索尚未连接抖音官方数据接口，发布需要你自己审核并在抖音内手动完成。请勿发送垃圾评论、重复评论或误导性内容，并遵守平台规则。</p></div>
+</section>
+</main>
+<div class="foot">抖音评论获客助手 · 本地原型 v1.1 · 请先备份重要数据</div>
+<script>
+const KEY='douyinLeadAssistantV1';
+let db={keywords:[],videos:[],comments:[],leads:[]};
+try{const saved=JSON.parse(localStorage.getItem(KEY)||'null');if(saved&&typeof saved==='object')db={...db,...saved}}catch(e){}
+const $=id=>document.getElementById(id);
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const save=()=>{localStorage.setItem(KEY,JSON.stringify(db));render()};
+function empty(msg){return `<div class="empty">${esc(msg)}</div>`}
+function itemActions(type,id){return `<div class="actions"><button class="btn small danger" onclick="delItem('${type}','${id}')">删除</button></div>`}
+function delItem(type,id){if(!confirm('确定删除这条记录？'))return;db[type]=db[type].filter(x=>x.id!==id);if(type==='videos')db.comments=db.comments.filter(x=>x.videoId!==id);save()}
+function render(){
+ $('statVideos').textContent=db.videos.length;$('statComments').textContent=db.comments.length;$('statLeads').textContent=db.leads.length;
+ $('keywordList').innerHTML=db.keywords.length?db.keywords.map(k=>`<div class="item"><div class="item-title">${esc(k.text)}</div><div class="meta">${esc(k.category)}</div><div class="actions"><button class="btn small secondary" onclick="copyText('${encodeURIComponent(k.text)}')">复制</button>${itemActions('keywords',k.id)}</div></div>`).join(''):empty('还没有关键词');
+ const kwOpts='<option value="">暂不关联</option>'+db.keywords.map(k=>`<option value="${k.id}">${esc(k.text)}</option>`).join('');
+ $('videoKeyword').innerHTML=kwOpts;
+ $('videoList').innerHTML=db.videos.length?db.videos.slice().reverse().map(v=>`<div class="item"><div class="item-title">${esc(v.title||'未命名视频')}</div><div class="meta">${esc(v.author||'作者未填写')} · ${esc(db.keywords.find(k=>k.id===v.keywordId)?.text||'未分类')}</div><div class="meta">${esc(v.notes||'暂无摘要')}</div>${v.url?`<div class="meta">${esc(v.url)}</div>`:''}<div class="actions"><button class="btn small secondary" onclick="useVideo('${v.id}')">生成评论</button>${v.url?`<button class="btn small ghost" onclick="openUrl('${encodeURIComponent(v.url)}')">打开视频</button>`:''}${itemActions('videos',v.id)}</div></div>`).join(''):empty('还没有视频');
+ $('chooseVideo').innerHTML=db.videos.length?'<option value="">请选择视频</option>'+db.videos.map(v=>`<option value="${v.id}">${esc(v.title||v.url||'未命名视频')}</option>`).join(''):'<option value="">先添加视频</option>';
+ $('leadSource').innerHTML='<option value="">不关联视频</option>'+db.videos.map(v=>`<option value="${v.id}">${esc(v.title||v.url||'未命名视频')}</option>`).join('');
+ $('commentList').innerHTML=db.comments.length?db.comments.slice().reverse().map(c=>`<div class="item"><div><span class="badge">${esc(db.videos.find(v=>v.id===c.videoId)?.title||'已删除的视频')}</span></div><div class="comment"><textarea id="txt_${c.id}">${esc(c.text)}</textarea><div class="actions"><button class="btn small" onclick="copyComment('${c.id}')">复制评论</button><button class="btn small secondary" onclick="saveComment('${c.id}')">保存修改</button><button class="btn small danger" onclick="delItem('comments','${c.id}')">删除</button></div></div></div>`).join(''):empty('选择一个视频并生成评论');
+ $('leadList').innerHTML=db.leads.length?db.leads.slice().reverse().map(l=>`<div class="item"><div class="item-title">${esc(l.name)}</div><div class="meta">状态：${esc(l.status)} · 来源：${esc(db.videos.find(v=>v.id===l.videoId)?.title||'未关联')}</div><div class="meta">${esc(l.notes||'暂无备注')}</div><div class="actions"><button class="btn small secondary" onclick="cycleLead('${l.id}')">更改状态</button>${itemActions('leads',l.id)}</div></div>`).join(''):empty('还没有客户线索');
+}
+window.copyText=async encoded=>{const t=decodeURIComponent(encoded);try{await navigator.clipboard.writeText(t);alert('已复制')}catch(e){prompt('请手动复制：',t)}};
+window.openUrl=encoded=>{let u=decodeURIComponent(encoded);if(!/^https?:\/\//i.test(u))u='https://'+u;window.open(u,'_blank','noopener')};
+window.useVideo=id=>{$('chooseVideo').value=id;document.querySelector('[data-tab="comments"]').click();$('generateComments').scrollIntoView({behavior:'smooth',block:'center'})};
+window.copyComment=async id=>{const t=$('txt_'+id).value;try{await navigator.clipboard.writeText(t);alert('评论已复制，请自行审核后发布')}catch(e){prompt('请手动复制评论：',t)}};
+window.saveComment=id=>{const c=db.comments.find(x=>x.id===id);if(c){c.text=$('txt_'+id).value;save();alert('已保存修改')}};
+window.cycleLead=id=>{const l=db.leads.find(x=>x.id===id);if(!l)return;const states=['待联系','已联系','有意向','已成交','暂不跟进'];l.status=states[(states.indexOf(l.status)+1)%states.length];save()};
+$('addKw').onclick=()=>{const text=$('kwInput').value.trim();if(!text)return alert('请先输入关键词');if(db.keywords.some(k=>k.text===text))return alert('这个关键词已存在');db.keywords.push({id:uid(),text,category:$('kwCategory').value});$('kwInput').value='';save()};
+$('copyKw').onclick=()=>copyText(encodeURIComponent(db.keywords.map(k=>k.text).join('\n')));
+$('addVideo').onclick=()=>{const title=$('videoTitle').value.trim(),url=$('videoUrl').value.trim(),notes=$('videoNotes').value.trim();if(!title&&!url&&!notes)return alert('请至少填写视频标题、链接或摘要之一');const v={id:uid(),title,url,author:$('videoAuthor').value.trim(),notes,keywordId:$('videoKeyword').value,createdAt:new Date().toISOString()};db.videos.push(v);['videoTitle','videoUrl','videoAuthor','videoNotes'].forEach(id=>$(id).value='');save();alert('视频已保存')};
+$('openDouyin').onclick=()=>window.open('https://www.douyin.com/','_blank','noopener');
+$('makeAIPrompt').onclick=()=>{
+ const v=db.videos.find(x=>x.id===$('chooseVideo').value);if(!v)return alert('请先选择一个视频');
+ const styles={friendly:'自然友好、像真实用户交流',question:'真诚提问、促进有价值的讨论',professional:'专业交流、具体且有信息量',local:'结合本地场景交流，但不要凭空编造本地事实'};
+ const extra=$('extraContext').value.trim();
+ const prompt=`你是一名重视真实交流的中文评论写作者。请根据以下抖音视频信息，写出5条不同的评论草稿。\n\n视频标题：${v.title||'未填写'}\n作者：${v.author||'未填写'}\n视频摘要/内容：${v.notes||'未填写，请不要臆测视频中没有的信息'}\n评论风格：${styles[$('commentStyle').value]||'自然友好'}\n补充方向：${extra||'无'}\n\n要求：1. 每条简短自然，长度约15—45个汉字；2. 必须紧扣已提供的视频内容，不要假装看过未提供的画面；3. 5条角度要有区别，避免重复套话；4. 不要硬广、诱导私信、虚假承诺或冒充客户；5. 如果信息不足，请使用谨慎、开放的提问；6. 只输出编号1—5的评论，不要解释。`;
+ $('aiPromptOutput').value=prompt;
+ $('aiPromptOutput').scrollIntoView({behavior:'smooth',block:'center'});
+};
+$('copyAIPrompt').onclick=async()=>{
+ const t=$('aiPromptOutput').value.trim();if(!t)return alert('请先生成 AI 提示词');
+ try{await navigator.clipboard.writeText(t);alert('提示词已复制，可以粘贴到 ChatGPT 等 AI 中使用')}catch(e){prompt('请手动复制提示词：',t)}
+};
+$('generateComments').onclick=()=>{
+ const v=db.videos.find(x=>x.id===$('chooseVideo').value);if(!v)return alert('请先选择一个视频');
+ const base=(v.notes||v.title||'这个话题').replace(/\s+/g,' ').slice(0,60),extra=$('extraContext').value.trim(),style=$('commentStyle').value;
+ let lines;
+ if(style==='question')lines=[`想请教一下，关于“${base}”你觉得最需要注意的是什么？`,`看完有个问题：${extra||'新手入门'}一般从哪一步开始比较好？`,`这个分享挺实用的，实际操作时最容易忽略什么？`,`如果刚开始了解这个话题，你最建议先做什么？`,`感谢分享！后续如果有实际案例，也想继续学习。`];
+ else if(style==='professional')lines=[`这个角度很有参考价值，尤其是前期规划和实际执行之间的衔接。`,`补充一个思路：可以先明确目标，再根据实际情况逐步验证。`,`内容很清晰。不同场景可能有差异，实际操作前最好再核对具体条件。`,`这个经验值得参考，数据和实际结果结合起来看会更有帮助。`,`感谢分享，想了解一下你判断效果时主要看哪些指标？`];
+ else if(style==='local')lines=[`徐州这边有类似情况吗？想看看本地实际操作的经验。`,`这个话题挺接地气的，身边做相关事情的人应该会有共鸣。`,`想问下本地做这类事情，前期一般要重点考虑哪些方面？`,`分享得挺实在，后续有徐州本地的案例也欢迎交流。`,`感谢分享！不同地方情况不一样，还是得结合本地实际来判断。`];
+ else lines=[`这个分享挺实在的，感谢整理，学到了。`,`讲得很清楚，尤其是“${base.slice(0,18)}”这个点，值得再研究一下。`,`之前没从这个角度想过，感谢分享经验。`,`想请教一下，实际操作时你觉得最重要的一步是什么？`,`内容有参考价值，后续如果有更多实操经验就更好了。`];
+ if(extra)lines=lines.map((s,i)=>i===1?s+` 我也比较关注${extra}。`:s);
+ lines.forEach(text=>db.comments.push({id:uid(),videoId:v.id,text,createdAt:new Date().toISOString()}));save();alert('已生成 5 条评论草稿，请逐条核对视频内容后再使用。')
+};
+$('addLead').onclick=()=>{const name=$('leadName').value.trim();if(!name)return alert('请填写客户或账号名称');db.leads.push({id:uid(),name,videoId:$('leadSource').value,status:$('leadStatus').value,notes:$('leadNotes').value.trim(),createdAt:new Date().toISOString()});$('leadName').value='';$('leadNotes').value='';save();alert('客户线索已保存')};
+$('exportData').onclick=()=>download('douyin-leads-backup.json',JSON.stringify(db,null,2),'application/json');
+$('exportCsv').onclick=()=>{const rows=[['标题','链接','作者','摘要','关键词'],...db.videos.map(v=>[v.title,v.url,v.author,v.notes,db.keywords.find(k=>k.id===v.keywordId)?.text||''])];download('douyin-videos.csv','\ufeff'+rows.map(r=>r.map(x=>'"'+String(x??'').replace(/"/g,'""')+'"').join(',')).join('\r\n'),'text/csv;charset=utf-8')};
+function download(name,data,type){const blob=new Blob([data],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+$('importFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const x=JSON.parse(await f.text());if(!x||!Array.isArray(x.keywords)||!Array.isArray(x.videos))throw Error();if(confirm('导入将替换当前数据，建议先导出备份。继续吗？')){db={keywords:x.keywords||[],videos:x.videos||[],comments:x.comments||[],leads:x.leads||[]};save();alert('导入成功')}}catch(err){alert('文件无法识别，请选择本工具导出的 JSON 备份')}e.target.value=''};
+$('clearData').onclick=()=>{if(confirm('确定清空全部本机数据？此操作无法撤销。请确认已经备份。')){db={keywords:[],videos:[],comments:[],leads:[]};save()}};
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.panel').forEach(x=>x.classList.toggle('active',x.id===b.dataset.tab))}));
+render();
+</script>
+</body>
+</html>
